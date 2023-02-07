@@ -1,11 +1,17 @@
 import sys
 import os.path
 from typing import List
-# import pandas as pd
+import pandas as pd
+CHUNKSIZE = 10000
 
 
 class ArgumentException(Exception):
     "Raised when there are an incompatible number of arguments"
+    pass
+
+
+class BadFilePathException(Exception):
+    "Raised when a specified file cannot be located"
     pass
 
 
@@ -19,16 +25,12 @@ def validateInput(args: List[str]) -> List[str]:
     cleaned = args[1:]
     for filename in cleaned:
         if not os.path.isfile(filename):
-            raise IOError("Couldn't find file " + filename)
+            raise BadFilePathException("Couldn't find file " + filename)
         if len(filename) > 4 and filename[-4:] != ".csv":
-            raise TypeError("File" + filename +
-                            "does not appear to be a csv")
+            raise TypeError("File " + filename +
+                            " does not appear to be a csv")
 
-        return cleaned
-
-    # except (ArgumentException, IOError, TypeError) as e:
-    #     print(e)
-    #     # sys.exit(2)
+    return cleaned
 
 
 def getFileName(s: str) -> str:
@@ -39,10 +41,35 @@ def getFileName(s: str) -> str:
     return s[position+1:]
 
 
-def main():
-    files = validateInput(sys.argv)
+def yieldChunk(files: List[str]) -> pd.DataFrame:
+    '''Yields a chunk of size <= 10000 rows. Yields None
+    when there are no files left to read'''
     for f in files:
-        print(getFileName(f))
+        name = getFileName(f)
+        chunks = pd.read_csv(f, chunksize=CHUNKSIZE)
+        for chunk in chunks:
+            chunk['filename'] = name
+            yield chunk
+    yield None
+
+
+def main():
+    '''Reads filenames from sys.argv and combines them into a single csv
+    if they exist and have a .csv extension'''
+    try:
+        files = validateInput(sys.argv)
+        first = True
+        for chunk in yieldChunk(files):
+            if chunk is None:
+                break
+            if first:
+                chunk.to_csv(sys.stdout, mode="a", index=False)
+                first = False
+            else:
+                chunk.to_csv(sys.stdout, header=False, mode="a", index=False)
+    except (Exception) as e:
+        print("EXCEPTION", type(e), e)
+        sys.exit(2)
 
 
 if __name__ == "__main__":
