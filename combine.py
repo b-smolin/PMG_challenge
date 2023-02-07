@@ -1,5 +1,3 @@
-import chunk
-from pickle import NONE
 import sys
 import os.path
 from typing import List
@@ -29,8 +27,8 @@ def validateInput(args: List[str]) -> List[str]:
         if not os.path.isfile(filename):
             raise BadFilePathException("Couldn't find file " + filename)
         if len(filename) > 4 and filename[-4:] != ".csv":
-            raise TypeError("File" + filename +
-                            "does not appear to be a csv")
+            raise TypeError("File " + filename +
+                            " does not appear to be a csv")
 
     return cleaned
 
@@ -58,12 +56,21 @@ def yieldChunk(files: List[str]) -> pd.DataFrame:
 def main():
     '''Reads filenames from sys.argv and combines them into a single csv
     if they exist and have a .csv extension'''
-    files = validateInput(sys.argv)
-    for chunk in yieldChunk(files):
-        if chunk is None:
-            break
-        chunk.to_csv(sys.stdout, mode="a", index = False)
-            
+    try:
+        files = validateInput(sys.argv)
+        first = True
+        for chunk in yieldChunk(files):
+            if chunk is None:
+                break
+            if first:
+                chunk.to_csv(sys.stdout, mode="a", index=False)
+                first = False
+            else:
+                chunk.to_csv(sys.stdout, header=False, mode="a", index=False)
+    except (Exception) as e:
+        print("EXCEPTION", type(e), e)
+        sys.exit(2)
+
 
 if __name__ == "__main__":
     main()
