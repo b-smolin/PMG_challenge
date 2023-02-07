@@ -1,4 +1,4 @@
-from combine import getFileName, validateInput, ArgumentException
+from combine import getFileName, validateInput, ArgumentException, BadFilePathException
 import pytest
 
 
@@ -38,7 +38,34 @@ def test_good_args2():
                                        "data/household_cleaners.csv"]
 
 
+def test_good_args3():
+    args = ["combine.py", "data/accessories.csv",
+        "data/clothing.csv",
+        "data/household_cleaners.csv",
+        "data/smalltest.csv",
+        "data/smallertest.csv"]
+    args = validateInput(args)
+    assert len(args) == 5 and args == ["data/accessories.csv",
+        "data/clothing.csv",
+        "data/household_cleaners.csv",
+        "data/smalltest.csv",
+        "data/smallertest.csv"]
+
+
 def test_too_few_args():
     args = ["combine.py"]
     with pytest.raises(ArgumentException):
+        validateInput(args)
+
+
+def test_bad_filename():
+    args = ["combine.py", "data/accessories.csv" , "data/doesntexist.csv",
+        "data/smallertest.csv"]
+    with pytest.raises(BadFilePathException):
+        args = validateInput(args)
+
+
+def test_wrong_filetype():
+    args = ["combine.py", "data/notacsv.txt"]
+    with pytest.raises(TypeError):
         validateInput(args)
