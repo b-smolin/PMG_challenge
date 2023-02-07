@@ -17,23 +17,28 @@ def test_name_stripping3():
     assert getFileName(name) == "IMPORTANTDATA.csv"
 
 
+def test_name_stripping_unix():
+    name = "data/files/items/contents/stuff.csv"
+    assert getFileName(name) == "stuff.csv"
+
+
 def test_good_args1():
-    args = [".\\combine.py", ".\\data\\accessories.csv"]
+    args = ["combine.py", "data/accessories.csv"]
     args = validateInput(args)
-    assert len(args) == 1 and args == [".\\data\\accessories.csv"]
+    assert len(args) == 1 and args == ["data/accessories.csv"]
 
 
 def test_good_args2():
-    args = [".\\combine.py", ".\\data\\accessories.csv",
-            ".\\data\\clothing.csv",
-            ".\\data\\household_cleaners.csv"]
+    args = ["combine.py", "data/accessories.csv",
+            "data/clothing.csv",
+            "data/household_cleaners.csv"]
     args = validateInput(args)
-    assert len(args) == 3 and args == [".\\data\\accessories.csv",
-                                       ".\\data\\clothing.csv",
-                                       ".\\data\\household_cleaners.csv"]
+    assert len(args) == 3 and args == ["data/accessories.csv",
+                                       "data/clothing.csv",
+                                       "data/household_cleaners.csv"]
 
 
 def test_too_few_args():
-    args = [".\\combine.py"]
+    args = ["combine.py"]
     with pytest.raises(ArgumentException):
         validateInput(args)

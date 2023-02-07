@@ -34,7 +34,7 @@ def validateInput(args: List[str]) -> List[str]:
 def getFileName(s: str) -> str:
     '''Extracts the filename from the string representing its relative path'''
     position = len(s)-1
-    while position >= 0 and s[position] != '\\':
+    while position >= 0 and s[position] != '\\' and s[position] != '/':
         position -= 1
     return s[position+1:]
 
