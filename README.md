@@ -2,7 +2,7 @@
 
 ## Notes
 
-My submission for the PMG CSV Combiner Technical Challenge
+My submission for the PMG CSV Combiner Technical Challenge. The program should work on both Windows and Unix based systems and was tested with Python 3.11. The program can be called from the command line with ```python3 combine.py [.csvs]``` with ```[.csvs]``` consisting of one or more space-delimited paths to csv files. The prompt is included below.
 
 ## Prompt
 
